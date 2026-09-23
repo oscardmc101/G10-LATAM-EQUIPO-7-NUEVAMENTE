@@ -7,12 +7,24 @@ class Document:
     text: str
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def document_id(self) -> str:
+        if "document_id" not in self.metadata or not self.metadata["document_id"]:
+            raise KeyError("Document metadata does not contain a valid 'document_id'")
+        return str(self.metadata["document_id"])
+
 
 @dataclass
 class Chunk:
     id: str
     text: str
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def document_id(self) -> str:
+        if "document_id" not in self.metadata or not self.metadata["document_id"]:
+            raise KeyError("Chunk metadata does not contain a valid 'document_id'")
+        return str(self.metadata["document_id"])
 
 
 @dataclass
@@ -24,8 +36,6 @@ class SearchResult:
 
     @property
     def document_id(self) -> str:
-        # NOTA: usa metadata["source"] como document_id por ahora.
-        # Pendiente de confirmar contra chunks_v1.csv / Ground Truth v1
-        # si el formato de documento_id debe ser distinto (ej. "CLD-ES-001"
-        # en vez del nombre de archivo).
-        return self.metadata.get("document_id", self.metadata.get("source", ""))
+        if "document_id" not in self.metadata or not self.metadata["document_id"]:
+            raise KeyError("SearchResult metadata does not contain a valid 'document_id'")
+        return str(self.metadata["document_id"])
