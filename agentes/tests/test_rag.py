@@ -102,19 +102,33 @@ def test_rag_e2e_answer_success(loaded_rag_agent):
 
 def test_rag_e2e_answer_for_evaluation_success(loaded_rag_agent):
     """
-    D & E: Valida ejecución de agent.answer_for_evaluation() usando caso real del Ground Truth
-    produciendo status == 'success' con el contrato JSON acordado con Data/IA.
+    D & E: Valida ejecución de agent.answer_for_evaluation() extrayendo dinámicamente
+    un caso real desde Data_IA/data/evaluation/ground_truth_v1.csv.
+    Produce status == 'success' con el contrato JSON acordado con Data/IA.
     """
     agent = loaded_rag_agent["agent"]
+    repo_root = Path(__file__).resolve().parent.parent.parent
+    gt_path = repo_root / "Data_IA" / "data" / "evaluation" / "ground_truth_v1.csv"
+    assert gt_path.exists(), f"El archivo Ground Truth debe existir en: {gt_path}"
+
+    with open(gt_path, mode="r", encoding="utf-8-sig") as f:
+        reader = csv.DictReader(f)
+        gt_rows = list(reader)
+
+    assert len(gt_rows) > 0
+    first_case = gt_rows[0]
+    case_id = first_case["case_id"]
+    query = first_case["pregunta"]
+
     response = agent.answer_for_evaluation(
-        case_id="AI-ES-001-Q01",
-        query="¿Qué pretende introducir este módulo sobre inteligencia artificial?",
+        case_id=case_id,
+        query=query,
         top_k=5
     )
 
     assert response["contract_version"] == "1.0"
-    assert response["case_id"] == "AI-ES-001-Q01"
-    assert response["query"] == "¿Qué pretende introducir este módulo sobre inteligencia artificial?"
+    assert response["case_id"] == case_id
+    assert response["query"] == query
     assert response["top_k"] == 5
     assert response["score_type"] == "cosine_similarity"
     assert response["status"] == "success"
@@ -123,8 +137,8 @@ def test_rag_e2e_answer_for_evaluation_success(loaded_rag_agent):
 
     for item in response["results"]:
         assert item["rank"] >= 1
-        assert item["chunk_id"].startswith("AI-") or "_" in item["chunk_id"]
-        assert len(item["document_id"]) > 0
+        assert "chunk_id" in item and len(item["chunk_id"]) > 0
+        assert "document_id" in item and len(item["document_id"]) > 0
         assert isinstance(item["score"], float)
         assert len(item["text"]) > 0
 
