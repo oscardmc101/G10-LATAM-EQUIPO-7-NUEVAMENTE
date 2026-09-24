@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 import pytest
-from agentes.rag.evaluation_loader import load_evaluation_chunks
+from agentes.rag.chunks_loader import load_evaluation_chunks
 
 
 def test_load_evaluation_chunks_from_real_ground_truth_csv(temp_vector_store):

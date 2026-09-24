@@ -6,7 +6,7 @@ from .cleaner import clean_text
 from .chunker import create_chunks
 from .extractor import extract_document
 from .pipeline import ingest_file
-from .evaluation_loader import load_evaluation_chunks
+from .chunks_loader import load_evaluation_chunks
 
 __all__ = [
     "DEFAULT_RAG_CONFIG",

@@ -3,6 +3,21 @@ import math
 import pytest
 from agentes.rag.vector_store import VectorStore
 
+# Mitigación de compatibilidad en Windows para enlaces simbólicos temporales
+try:
+    import _pytest.pathlib
+    _orig_cleanup = _pytest.pathlib.cleanup_dead_symlinks
+
+    def _safe_cleanup_dead_symlinks(root):
+        try:
+            _orig_cleanup(root)
+        except (PermissionError, OSError):
+            pass
+
+    _pytest.pathlib.cleanup_dead_symlinks = _safe_cleanup_dead_symlinks
+except Exception:
+    pass
+
 
 class FakeEmbeddingService:
     """
@@ -29,7 +44,7 @@ class FakeEmbeddingService:
         return self._hash_to_vector(query)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def fake_embedding():
     return FakeEmbeddingService()
 

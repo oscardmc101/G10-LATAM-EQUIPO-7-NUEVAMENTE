@@ -40,8 +40,8 @@ agentes/
 │   ├── vector_store.py        # VectorStore unificado en ChromaDB
 │   ├── retriever.py           # RetrieverService con contrato Data/IA
 │   ├── pipeline.py            # Pipeline de ingestión normal (ingest_file)
-│   └── evaluation_loader.py   # Cargador exacto de Ground Truth (chunks_v1.csv)
-└── tests/                     # Suite de pruebas automatizadas con pytest
+│   └── chunks_loader.py       # Cargador exacto de Ground Truth (chunks_v1.csv)
+└── tests/                     # Suite de pruebas automatizadas (incluye test_rag.py)
 ```
 
 ---
@@ -81,7 +81,7 @@ El pipeline aplica:
 3. `chunker.py`: Fragmenta mediante `RecursiveCharacterTextSplitter` asociando el `document_id` canónico.
 4. `vector_store.py`: Indexa los chunks en lotes calculando embeddings.
 
-### B. Ingestión para Evaluación (`evaluation_loader.py`)
+### B. Ingestión para Evaluación (`chunks_loader.py`)
 
 Para las pruebas de evaluación contra el Ground Truth consensuado con Data/IA (`Data_IA/data/evaluation/chunks_v1.csv`):
 
@@ -180,12 +180,16 @@ pip install -r agentes/requirements.txt
 
 ---
 
-## 8. Ejecución de Tests
+## 8. Ejecución de Tests y Prueba Funcional End-to-End
 
-La suite de pruebas automatizadas está basada en `pytest` y utiliza embeddings mock deterministas (no requiere descargar modelos ni conexión a internet):
+La suite de pruebas automatizadas está basada en `pytest` y utiliza embeddings mock deterministas (no requiere descargar modelos ni conexión a internet).
+
+Incluye pruebas unitarias para cada componente y la prueba funcional completa del agente (`agentes/tests/test_rag.py`), que valida la instanciación de `AgentV1`, la carga real de `Data_IA/data/evaluation/chunks_v1.csv` en `VectorStore`, la ejecución de `answer()` y `answer_for_evaluation()`, y los estados `success` y `no_results`.
+
+Comando exacto de ejecución desde la raíz del repositorio:
 
 ```bash
-pytest agentes/tests -v
+python -m pytest agentes/tests -v
 ```
 
 ---
